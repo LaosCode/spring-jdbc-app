@@ -1,8 +1,9 @@
 package com.example.SpringJDBCApp.dao.Impl;
 
-import com.example.SpringJDBCApp.dao.CourseDao;
-import com.example.SpringJDBCApp.dao.mappers.CourseRowMapper;
-import com.example.SpringJDBCApp.model.Course;
+import com.example.SpringJDBCApp.dao.GroupDao;
+import com.example.SpringJDBCApp.dao.mappers.GroupRowMapper;
+import com.example.SpringJDBCApp.model.Group;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -17,11 +18,9 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
+import static org.junit.jupiter.api.Assertions.*;
 @JdbcTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Sql(
@@ -31,13 +30,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @Testcontainers
 @ActiveProfiles("test")
 @ComponentScan(basePackages = "com.example.SpringJDBCApp")
-class JdbcCourseDAOTest {
+class JdbcGroupDAOTest {
 
     @Autowired
-    private CourseDao underTestDao;
+    private GroupDao underTestDao;
     @Autowired
     private JdbcTemplate jdbcTemplate;
-
 
     @Container
     private static PostgreSQLContainer sqlContainer =
@@ -54,27 +52,26 @@ class JdbcCourseDAOTest {
     }
 
     @Test
-    void shouldAddCourseToTable() {
-        Course courseToAdd = new Course(1, "test_course_name", "test_course_description");
-        String sqlRequest = "select * from courses";
+    @Sql(
+            scripts = {"/sql/clear_tables.sql"}
+    )
+    void shouldAddGroup() {
+        Group groupToAdd = new Group(1, "test_group_name");
+        String sqlRequest = "select * from groups";
 
-        underTestDao.addCourse(courseToAdd.getName(), courseToAdd.getDescription());
-        List<Course> courses = jdbcTemplate.query(sqlRequest, new CourseRowMapper());
+        underTestDao.addGroup(groupToAdd.getName());
+        List<Group> groups = jdbcTemplate.query(sqlRequest, new GroupRowMapper());
 
-        assertEquals(courseToAdd, courses.get(0));
+        assertEquals(groupToAdd, groups.get(0));
     }
 
     @Test
     @Sql(
             scripts = {"/sql/clear_tables.sql", "/sql/samples_data.sql"}
     )
-    void shouldGetAllCoursesFromTable() {
-        List<Course> expected = new ArrayList<>();
-        expected.add(new Course(1, "course_1", "course_1"));
-        expected.add(new Course(2, "course_2", "course_2"));
-        expected.add(new Course(3, "course_3", "course_3"));
-
-        List<Course> result = underTestDao.getAllCourses().get();
+    void findAllHaveCertainAmountOfStudents() {
+        List<Group>  result= underTestDao.findAllHaveCertainAmountOfStudents(2).get();
+        List<Group> expected = List.of(new Group(1,"group1"));
 
         assertEquals(expected,result);
     }

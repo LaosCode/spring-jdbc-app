@@ -10,18 +10,16 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 @Component
 public class Controller {
-
     private final CourseDao courseDao;
     private final GroupDao groupDao;
     private final StudentDao studentDao;
     private final View view;
 
-
     public void getAllGroupWithLessOrEqualStudentsCommand() {
         view.printMsg("Type number of students:");
         int studentNumber = view.requestInt();
         groupDao.findAllHaveCertainAmountOfStudents(studentNumber)
-                .orElseThrow(()->new RuntimeException("No group found having "+studentNumber+" students"))
+                .orElseThrow(() -> new RuntimeException("No group found having " + studentNumber + " students"))
                 .forEach(System.out::println);
     }
 
@@ -31,9 +29,8 @@ public class Controller {
         view.printMsg("Type student name:");
         String studentName = view.requestString();
         studentDao.findAllStudentsByCourseAndByName(courseName, studentName)
-                .orElseThrow(()->new RuntimeException("No such student found: "+courseName+", "+studentName))
+                .orElseThrow(() -> new RuntimeException("No such student found: " + courseName + ", " + studentName))
                 .forEach(System.out::println);
-
     }
 
     public void createNewStudent() {
@@ -56,7 +53,7 @@ public class Controller {
         view.printMsg("Type student id:");
         int studentId = view.requestInt();
         courseDao.getAllCourses()
-                .orElseThrow(()->new RuntimeException("No courses found"))
+                .orElseThrow(() -> new RuntimeException("No courses found"))
                 .forEach(System.out::println);
         view.printMsg("Type course id:");
         int courseId = view.requestInt();

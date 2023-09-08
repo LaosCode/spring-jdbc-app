@@ -24,26 +24,10 @@ import static org.mockito.Mockito.verify;
 @ActiveProfiles("test")
 @Testcontainers
 class SpringJdbcAppApplicationTests {
-	@Autowired
-	private GroupDao groupDao;
-	@Container
-	private static PostgreSQLContainer sqlContainer =
-			new PostgreSQLContainer("postgres:14.9")
-					.withDatabaseName("test")
-					.withUsername("root")
-					.withPassword("test");
-
-	@DynamicPropertySource
-	public static void overrideProps(DynamicPropertyRegistry registry){
-		registry.add("spring.datasource.url",sqlContainer::getJdbcUrl);
-		registry.add("spring.datasource.username",sqlContainer::getUsername);
-		registry.add("spring.datasource.password",sqlContainer::getPassword);
-	}
 
 	@Test
 	void contextLoads() {
-	groupDao.addGroup("test_name");
-		System.out.println("yes");
+
 	}
 
 }
