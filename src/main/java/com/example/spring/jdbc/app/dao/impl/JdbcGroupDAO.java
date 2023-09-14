@@ -1,4 +1,4 @@
-package com.example.spring.jdbc.app.dao.Impl;
+package com.example.spring.jdbc.app.dao.impl;
 
 import com.example.spring.jdbc.app.model.Group;
 import com.example.spring.jdbc.app.dao.GroupDao;
