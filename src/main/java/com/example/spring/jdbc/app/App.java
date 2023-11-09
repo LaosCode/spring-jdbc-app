@@ -38,7 +38,6 @@ public class App {
 
 
         while (exit) {
-//            view.showAllActions();
             commandMapHandler.getListOfCommands().forEach(System.out::println);
             String userCommand = view.requestString();
             if (!userCommand.equals("EXIT")) {
