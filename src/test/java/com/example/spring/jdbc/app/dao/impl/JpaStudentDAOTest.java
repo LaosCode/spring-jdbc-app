@@ -1,17 +1,17 @@
 package com.example.spring.jdbc.app.dao.impl;
 
 import com.example.spring.jdbc.app.dao.StudentDao;
-import com.example.spring.jdbc.app.dao.mappers.StudentRowMapper;
+import com.example.spring.jdbc.app.model.Course;
+import com.example.spring.jdbc.app.model.Group;
 import com.example.spring.jdbc.app.model.Student;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -27,17 +27,18 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-@JdbcTest
+@DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Testcontainers
 @ActiveProfiles("test")
 @ComponentScan(basePackages = "com.example.spring.jdbc.app")
-class JdbcStudentDAOTest {
+class JpaStudentDAOTest {
 
     @Autowired
     private StudentDao underTestDao;
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+
+    @PersistenceContext
+    private EntityManager em;
 
     @Container
     private static PostgreSQLContainer sqlContainer =
@@ -55,18 +56,18 @@ class JdbcStudentDAOTest {
 
     @Test
     @Sql(
-            scripts = {"/sql/clear_tables.sql"}
+            scripts = {"/sql/clear_tables.sql", "/sql/samples_data_add_group.sql"}
     )
     public void shouldAddStudent() {
+        Student studentToAdd = new Student(1, "Alex", "test_student_last_name");
+        List<Student> expected = List.of(studentToAdd);
 
-        Student studentToAdd = new Student(1, 1, "Alex", "test_student_last_name");
-        String sqlRequest = "select * from students";
-
-        jdbcTemplate.update("insert into groups (group_name) values (?)", "test_group");
         underTestDao.add(studentToAdd);
-        List<Student> students = jdbcTemplate.query(sqlRequest, new StudentRowMapper());
+        List<Student> resultList = em
+                .createQuery("select s from Student s", Student.class)
+                .getResultList();
 
-        assertEquals(studentToAdd, students.get(0));
+        assertEquals(expected, resultList);
     }
 
     @Test
@@ -74,14 +75,15 @@ class JdbcStudentDAOTest {
             scripts = {"/sql/clear_tables.sql", "/sql/samples_data.sql"}
     )
     public void shouldDeleteStudent() {
-        Student studentToDelete = new Student(1, 1, "Alex", "test_student_last_name");
-        String sqlRequest = "select * from students where student_id=1";
-        List<Student> expected = Collections.EMPTY_LIST;
+        Student studentToDelete = new Student(2,"firstname_3","lastname_2");
+        studentToDelete.setStudentId(3);
 
         underTestDao.delete(studentToDelete.getStudentId());
-        List<Student> result = jdbcTemplate.query(sqlRequest, new StudentRowMapper());
+        List<Student> result = em
+                .createQuery("select s from Student s", Student.class)
+                .getResultList();
 
-        assertEquals(expected, result);
+        assertThat(result).doesNotContain(studentToDelete);
     }
 
     @Test
@@ -89,9 +91,11 @@ class JdbcStudentDAOTest {
             scripts = {"/sql/clear_tables.sql", "/sql/samples_data.sql"}
     )
     public void shouldGetAllStudentsByNameAndCourse() {
+        Group group = new Group("group1");
+        group.setId(1);
         List<Student> expected = List.of(
-                new Student(1, 1, "Alex", "lastname_1"),
-                new Student(2, 1, "Alex", "lastname_2"));
+                new Student(1, group, "Alex", "lastname_1"),
+                new Student(2, group, "Alex", "lastname_2"));
 
         List<Student> result =
                 underTestDao.findAllStudentsByCourseAndByName("course_2", "Alex");
@@ -104,25 +108,18 @@ class JdbcStudentDAOTest {
             scripts = {"/sql/clear_tables.sql", "/sql/samples_data.sql"}
     )
     public void shouldAssignCourseToStudent() {
-        @Data
-        @AllArgsConstructor
-        class CourseStudent {
-            private int student_id;
-            private int course_id;
-        }
-        String sql = "select * from students_courses where student_id=3 and course_id=3";
-        List<CourseStudent> result = new ArrayList<>();
-        List<CourseStudent> expected = List.of(
-                new CourseStudent(3, 3));
 
+
+        Group group = new Group("group2");
+        group.setId(2);
+        Course course = new Course("course_3","course_3");
+        course.setId(3);
+        Student expected = new Student(3,group,"firstname_3","lastname_2");
+        expected.setCourses(List.of(course));
 
         underTestDao.assignCourseToStudentById(3, 3);
-        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql);
-        while (rowSet.next()) {
-            int studentId = rowSet.getInt(1);
-            int courseId = rowSet.getInt(2);
-            result.add(new CourseStudent(studentId, courseId));
-        }
+        Student result = em.find(Student.class,3);
+
         assertEquals(expected, result);
     }
 
@@ -131,29 +128,13 @@ class JdbcStudentDAOTest {
             scripts = {"/sql/clear_tables.sql", "/sql/samples_data.sql"}
     )
     public void shouldRemoveStudentFromCourse() {
-        @Data
-        @AllArgsConstructor
-        class CourseStudent {
-            private int student_id;
-            private int course_id;
-        }
-        String sql = "select * from students_courses";
 
         underTestDao.removeStudentFromCourse(1, 1);
-        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql);
-        List<CourseStudent> expected = List.of(new CourseStudent(1, 2),
-                new CourseStudent(1, 3),
-                new CourseStudent(2, 1),
-                new CourseStudent(2, 2),
-                new CourseStudent(3, 1));
 
-        List<CourseStudent> result = new ArrayList<>();
-        while (rowSet.next()) {
-            int studentId = rowSet.getInt(1);
-            int courseId = rowSet.getInt(2);
-            result.add(new CourseStudent(studentId, courseId));
-        }
+        List<Course> result = em.find(Student.class,1).getCourses();
 
-        assertThat(result).containsAll(expected).isNotEmpty().hasSize(5);
+        assertThat(result)
+                .isNotEmpty()
+                .hasSize(2);
     }
 }

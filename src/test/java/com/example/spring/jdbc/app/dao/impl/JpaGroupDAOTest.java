@@ -1,14 +1,14 @@
 package com.example.spring.jdbc.app.dao.impl;
 
 import com.example.spring.jdbc.app.dao.GroupDao;
-import com.example.spring.jdbc.app.dao.mappers.GroupRowMapper;
 import com.example.spring.jdbc.app.model.Group;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -17,11 +17,13 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-@JdbcTest
+@DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Sql(
         scripts = {"/sql/clear_tables.sql"},
@@ -30,12 +32,13 @@ import static org.junit.jupiter.api.Assertions.*;
 @Testcontainers
 @ActiveProfiles("test")
 @ComponentScan(basePackages = "com.example.spring.jdbc.app")
-class JdbcGroupDAOTest {
+class JpaGroupDAOTest {
 
     @Autowired
     private GroupDao underTestDao;
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+
+    @PersistenceContext
+    private EntityManager em;
 
     @Container
     private static PostgreSQLContainer sqlContainer =
@@ -56,13 +59,14 @@ class JdbcGroupDAOTest {
             scripts = {"/sql/clear_tables.sql"}
     )
     public void shouldAddGroup() {
-        Group groupToAdd = new Group(1, "test_group_name");
-        String sqlRequest = "select * from groups";
+        Group groupToAdd = new Group("test_group_name");
+        List<Group> expectedResult = List.of(groupToAdd);
+        underTestDao.add(groupToAdd);
+        List<Group> resultGroup = em.
+                createQuery("select g from Group g",Group.class)
+                .getResultList();
 
-        underTestDao.add(groupToAdd.getName());
-        List<Group> groups = jdbcTemplate.query(sqlRequest, new GroupRowMapper());
-
-        assertEquals(groupToAdd, groups.get(0));
+        assertEquals(expectedResult, resultGroup);
     }
 
     @Test
@@ -71,8 +75,12 @@ class JdbcGroupDAOTest {
     )
     public void findAllHaveCertainAmountOfStudents() {
         List<Group> result = underTestDao.findAllHaveCertainAmountOfStudents(2);
-        List<Group> expected = List.of(new Group(1, "group1"));
 
-        assertEquals(expected, result);
-    }
+        Group group = new Group("group2");
+        group.setId(2);
+        List<Group> expected = new ArrayList<>();
+        expected.add(group);
+
+        assertThat(expected).hasSameElementsAs(result);
+        }
 }

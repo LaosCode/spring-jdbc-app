@@ -1,14 +1,14 @@
 package com.example.spring.jdbc.app.dao.impl;
 
-import com.example.spring.jdbc.app.dao.mappers.CourseRowMapper;
 import com.example.spring.jdbc.app.model.Course;
 import com.example.spring.jdbc.app.dao.CourseDao;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -23,7 +23,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@JdbcTest
+@DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Sql(
         scripts = {"/sql/clear_tables.sql"},
@@ -32,14 +32,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @Testcontainers
 @ActiveProfiles("test")
 @ComponentScan(basePackages = "com.example.spring.jdbc.app")
-class JdbcCourseDAOTest {
+class JpaCourseDAOTest {
 
     @Autowired
     private CourseDao underTestDao;
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
 
-
+    @PersistenceContext
+    private EntityManager em;
     @Container
     private static PostgreSQLContainer sqlContainer =
             new PostgreSQLContainer("postgres:14.9")
@@ -56,11 +55,10 @@ class JdbcCourseDAOTest {
 
     @Test
     public void shouldAddCourseToTable() {
-        Course courseToAdd = new Course(1, "test_course_name", "test_course_description");
-        String sqlRequest = "select * from courses";
+        Course courseToAdd = new Course("test_course_name", "test_course_description");
 
-        underTestDao.add(courseToAdd.getName(), courseToAdd.getDescription());
-        List<Course> courses = jdbcTemplate.query(sqlRequest, new CourseRowMapper());
+        underTestDao.add(courseToAdd);
+        List<Course> courses = underTestDao.getAllCourses();
 
         assertEquals(courseToAdd, courses.get(0));
     }

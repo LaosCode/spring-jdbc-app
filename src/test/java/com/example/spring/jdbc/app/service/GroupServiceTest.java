@@ -31,10 +31,11 @@ class GroupServiceTest {
 
     @Test
     public void shouldAddGroup() {
-        Group group = new Group(1,"Group1");
+        Group group = new Group("Group1");
+        group.setId(1);
 
-        underTestService.add(group.getName());
+        underTestService.add(group);
 
-        verify(groupDao).add(group.getName());
+        verify(groupDao).add(group);
     }
 }

@@ -30,8 +30,8 @@ class CourseServiceTest {
     public void testShouldCreateNewCourse() {
         Course course =  new Course("Philosophy","Some course");
 
-        underTestService.add(course.getName(), course.getDescription());
+        underTestService.add(course);
 
-        verify(courseDao).add(course.getName(), course.getDescription());
+        verify(courseDao).add(course);
     }
 }

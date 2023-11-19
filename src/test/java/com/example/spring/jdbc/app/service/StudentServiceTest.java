@@ -1,6 +1,7 @@
 package com.example.spring.jdbc.app.service;
 
 import com.example.spring.jdbc.app.dao.StudentDao;
+import com.example.spring.jdbc.app.model.Group;
 import com.example.spring.jdbc.app.model.Student;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +24,8 @@ class StudentServiceTest {
         Student student = Student.builder()
                 .firstName("Name")
                 .lastName("LastName")
-                .groupId(1)
                 .build();
-
+        student.setGroup(new Group("group"));
         underTestService.add(student);
 
         verify(studentDao).add(student);
