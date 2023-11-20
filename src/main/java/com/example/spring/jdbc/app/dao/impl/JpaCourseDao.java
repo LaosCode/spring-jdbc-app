@@ -28,7 +28,5 @@ public class JpaCourseDao implements CourseDao {
         return entityManager
                 .createQuery("SELECT c from Course c", Course.class)
                 .getResultList();
-
-
     }
 }

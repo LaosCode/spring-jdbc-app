@@ -14,6 +14,7 @@ import java.util.List;
 public class StudentService {
 
     private final StudentDao studentDao;
+
     public void add(Student student) {
         studentDao.add(student);
     }
@@ -21,14 +22,16 @@ public class StudentService {
     public List<Student> findAllStudentsByCourseAndByName(String courseName, String firstName) {
         return studentDao.findAllStudentsByCourseAndByName(courseName, firstName);
     }
-    public void delete(int id){
+
+    public void delete(int id) {
         studentDao.delete(id);
     }
-    public void assignStudentToCourse(int courseId,int studentId){
-        studentDao.assignCourseToStudentById(courseId,studentId);
+
+    public void assignStudentToCourse(int courseId, int studentId) {
+        studentDao.assignCourseToStudentById(courseId, studentId);
     }
 
-    public void removeStudentFromCourse(int courseId,int studentId){
+    public void removeStudentFromCourse(int courseId, int studentId) {
         studentDao.removeStudentFromCourse(courseId, studentId);
     }
 }

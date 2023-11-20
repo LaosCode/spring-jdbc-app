@@ -59,6 +59,5 @@ public class JpaStudentDao implements StudentDao {
         Course course = entityManager.find(Course.class, courseId);
         student.getCourses().remove(course);
         course.getStudents().remove(student);
-
     }
 }

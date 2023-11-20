@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -37,8 +38,9 @@ class JpaCourseDAOTest {
     @Autowired
     private CourseDao underTestDao;
 
-    @PersistenceContext
-    private EntityManager em;
+    @Autowired
+    private TestEntityManager em;
+
     @Container
     private static PostgreSQLContainer sqlContainer =
             new PostgreSQLContainer("postgres:14.9")

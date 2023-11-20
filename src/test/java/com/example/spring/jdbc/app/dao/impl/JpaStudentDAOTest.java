@@ -37,8 +37,8 @@ class JpaStudentDAOTest {
     @Autowired
     private StudentDao underTestDao;
 
-    @PersistenceContext
-    private EntityManager em;
+    @Autowired
+    private TestEntityManager em;
 
     @Container
     private static PostgreSQLContainer sqlContainer =
@@ -63,7 +63,7 @@ class JpaStudentDAOTest {
         List<Student> expected = List.of(studentToAdd);
 
         underTestDao.add(studentToAdd);
-        List<Student> resultList = em
+        List<Student> resultList = em.getEntityManager()
                 .createQuery("select s from Student s", Student.class)
                 .getResultList();
 
@@ -75,11 +75,11 @@ class JpaStudentDAOTest {
             scripts = {"/sql/clear_tables.sql", "/sql/samples_data.sql"}
     )
     public void shouldDeleteStudent() {
-        Student studentToDelete = new Student(2,"firstname_3","lastname_2");
+        Student studentToDelete = new Student(2, "firstname_3", "lastname_2");
         studentToDelete.setStudentId(3);
 
         underTestDao.delete(studentToDelete.getStudentId());
-        List<Student> result = em
+        List<Student> result = em.getEntityManager()
                 .createQuery("select s from Student s", Student.class)
                 .getResultList();
 
@@ -112,13 +112,13 @@ class JpaStudentDAOTest {
 
         Group group = new Group("group2");
         group.setId(2);
-        Course course = new Course("course_3","course_3");
+        Course course = new Course("course_3", "course_3");
         course.setId(3);
-        Student expected = new Student(3,group,"firstname_3","lastname_2");
+        Student expected = new Student(3, group, "firstname_3", "lastname_2");
         expected.setCourses(List.of(course));
 
         underTestDao.assignCourseToStudentById(3, 3);
-        Student result = em.find(Student.class,3);
+        Student result = em.find(Student.class, 3);
 
         assertEquals(expected, result);
     }
@@ -131,7 +131,7 @@ class JpaStudentDAOTest {
 
         underTestDao.removeStudentFromCourse(1, 1);
 
-        List<Course> result = em.find(Student.class,1).getCourses();
+        List<Course> result = em.find(Student.class, 1).getCourses();
 
         assertThat(result)
                 .isNotEmpty()

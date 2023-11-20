@@ -20,8 +20,6 @@ public class Student {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "student_id")
     private int studentId;
-    //    @Column(name = "group_id")
-//    private int groupId;
     @Column(name = "first_name")
     private String firstName;
     @Column(name = "last_name")

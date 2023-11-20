@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -37,8 +38,8 @@ class JpaGroupDAOTest {
     @Autowired
     private GroupDao underTestDao;
 
-    @PersistenceContext
-    private EntityManager em;
+    @Autowired
+    private TestEntityManager em;
 
     @Container
     private static PostgreSQLContainer sqlContainer =
@@ -62,7 +63,7 @@ class JpaGroupDAOTest {
         Group groupToAdd = new Group("test_group_name");
         List<Group> expectedResult = List.of(groupToAdd);
         underTestDao.add(groupToAdd);
-        List<Group> resultGroup = em.
+        List<Group> resultGroup = em.getEntityManager().
                 createQuery("select g from Group g",Group.class)
                 .getResultList();
 
