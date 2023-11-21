@@ -30,9 +30,6 @@ public class JpaStudentDao implements StudentDao {
     public void delete(int studentId) {
         Student student = entityManager.find(Student.class, studentId);
         entityManager.remove(student);
-//                createQuery("delete from Student where studentId = : studentId")
-//                .setParameter(studentId, studentId)
-//                .executeUpdate();
     }
 
     @Override
