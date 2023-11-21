@@ -1,5 +1,5 @@
--- drop database school;
--- create database school  ;
+-- -- drop database school;
+-- create database school;
 -- create user postgres with encrypted password '111111';
 -- grant all privileges on database school to postgres;
 drop table if exists students_courses;

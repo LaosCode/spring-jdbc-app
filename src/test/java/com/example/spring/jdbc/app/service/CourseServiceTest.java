@@ -1,6 +1,7 @@
 package com.example.spring.jdbc.app.service;
 
 import com.example.spring.jdbc.app.dao.CourseDao;
+import com.example.spring.jdbc.app.dao.repository.CourseRepository;
 import com.example.spring.jdbc.app.model.Course;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,7 @@ import static org.mockito.Mockito.verify;
 class CourseServiceTest {
 
     @MockBean
-    CourseDao courseDao;
+    CourseRepository courseRepository;
 
     @Autowired
     CourseService underTestService;
@@ -23,7 +24,7 @@ class CourseServiceTest {
     public void shouldRetrieveAllCourses() {
         underTestService.getAllCourses();
 
-        verify(courseDao).getAllCourses();
+        verify(courseRepository).findAll();
     }
 
     @Test
@@ -32,6 +33,6 @@ class CourseServiceTest {
 
         underTestService.add(course);
 
-        verify(courseDao).add(course);
+        verify(courseRepository).save(course);
     }
 }

@@ -1,6 +1,7 @@
 package com.example.spring.jdbc.app.service;
 
 import com.example.spring.jdbc.app.dao.CourseDao;
+import com.example.spring.jdbc.app.dao.repository.CourseRepository;
 import com.example.spring.jdbc.app.model.Course;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,14 +14,14 @@ import java.util.List;
 @AllArgsConstructor
 public class CourseService {
 
-    private CourseDao courseDao;
+    private CourseRepository courseRepository;
 
     public List<Course> getAllCourses() {
-        return courseDao.getAllCourses();
+        return courseRepository.findAll();
     }
 
     @Transactional
     public void add(Course course) {
-        courseDao.add(course);
+        courseRepository.save(course);
     }
 }

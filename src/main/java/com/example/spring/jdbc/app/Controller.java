@@ -34,7 +34,7 @@ public class Controller {
         view.printMsg("Type student name:");
         String studentName = view.requestString();
         logger.info("Getting students with student name: {}, Course Name: {}", studentName, courseName);
-        studentService.findAllStudentsByCourseAndByName(courseName, studentName)
+        studentService.findAllStudentsByCourseAndByName(courseName, studentName).get()
                 .forEach(System.out::println);
     }
 
@@ -75,8 +75,6 @@ public class Controller {
         logger.info("Removing student from course - student id: {}, Course ID: {}", studentId, courseId);
         studentService.removeStudentFromCourse(courseId, studentId);
     }
-
-
 }
 
 

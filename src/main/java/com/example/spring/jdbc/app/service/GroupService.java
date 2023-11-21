@@ -1,6 +1,7 @@
 package com.example.spring.jdbc.app.service;
 
 import com.example.spring.jdbc.app.dao.GroupDao;
+import com.example.spring.jdbc.app.dao.repository.GroupRepository;
 import com.example.spring.jdbc.app.model.Group;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,13 +14,13 @@ import java.util.List;
 @AllArgsConstructor
 public class GroupService {
 
-    private final GroupDao groupDao;
+    private final GroupRepository groupRepository;
 
     public List<Group> findAllHaveCertainAmountOfStudents(int minimumNumberOfStudents) {
-        return groupDao.findAllHaveCertainAmountOfStudents(minimumNumberOfStudents);
+        return groupRepository.findAllHaveCertainAmountOfStudents(minimumNumberOfStudents);
     }
 
     public void add(Group group) {
-        groupDao.add(group);
+        groupRepository.save(group);
     }
 }

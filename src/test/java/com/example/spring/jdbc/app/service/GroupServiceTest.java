@@ -2,7 +2,9 @@ package com.example.spring.jdbc.app.service;
 
 import com.example.spring.jdbc.app.dao.CourseDao;
 import com.example.spring.jdbc.app.dao.GroupDao;
+import com.example.spring.jdbc.app.dao.repository.GroupRepository;
 import com.example.spring.jdbc.app.model.Group;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,8 +17,7 @@ import static org.mockito.Mockito.verify;
 class GroupServiceTest {
 
     @MockBean
-    GroupDao groupDao;
-
+    GroupRepository groupRepository;
     @Autowired
     GroupService underTestService;
 
@@ -26,7 +27,7 @@ class GroupServiceTest {
 
         underTestService.findAllHaveCertainAmountOfStudents(minNumberOfStudents);
 
-        verify(groupDao).findAllHaveCertainAmountOfStudents(minNumberOfStudents);
+        verify(groupRepository).findAllHaveCertainAmountOfStudents(minNumberOfStudents);
     }
 
     @Test
@@ -36,6 +37,6 @@ class GroupServiceTest {
 
         underTestService.add(group);
 
-        verify(groupDao).add(group);
+        verify(groupRepository).save(group);
     }
 }
