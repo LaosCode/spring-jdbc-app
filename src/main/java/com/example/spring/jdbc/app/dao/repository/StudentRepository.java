@@ -13,5 +13,5 @@ import java.util.Optional;
 public interface StudentRepository extends JpaRepository<Student, Integer> {
 
     @Query("select s from Student s join s.courses c where s.firstName = ?2 and c.name=?1")
-    Optional<List<Student>> findAllByCoursesAndFirstName(String courseName,String firstName);
+    List<Student> findAllByCoursesAndFirstName(String courseName,String firstName);
 }

@@ -27,7 +27,7 @@ public class StudentService {
         studentRepository.save(student);
     }
 
-    public Optional<List<Student>> findAllStudentsByCourseAndByName(String courseName, String firstName) {
+    public List<Student> findAllStudentsByCourseAndByName(String courseName, String firstName) {
         return studentRepository.findAllByCoursesAndFirstName(courseName, firstName);
     }
 
