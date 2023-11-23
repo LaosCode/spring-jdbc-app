@@ -35,15 +35,19 @@ public class StudentService {
         studentRepository.deleteById(id);
     }
 
+    public Student findById (int studentId){
+        return studentRepository.findById(studentId).get();
+    }
+
     @Transactional
     public void assignStudentToCourse(int courseId, int studentId) {
-        Student studentToBeUpdated = studentRepository.getReferenceById(studentId);
+        Student studentToBeUpdated = studentRepository.findById(studentId).get();
         List<Course> courses = studentToBeUpdated.getCourses();
-
-        Course courseToAdd = courseRepository.getReferenceById(courseId);
+        Course courseToAdd = courseRepository.findById(courseId).get();
         courses.add(courseToAdd);
         studentToBeUpdated.setCourses(courses);
         courseToAdd.getStudents().add(studentToBeUpdated);
+        studentRepository.save(studentToBeUpdated);
     }
 
     @Transactional
@@ -54,5 +58,6 @@ public class StudentService {
         List<Student> students = courseToBeUpdated.getStudents();
         courses.remove(courseToBeUpdated);
         students.remove(studentToBeUpdated);
+        studentRepository.save(studentToBeUpdated);
     }
 }

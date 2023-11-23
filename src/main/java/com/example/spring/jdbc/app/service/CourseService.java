@@ -3,6 +3,7 @@ package com.example.spring.jdbc.app.service;
 import com.example.spring.jdbc.app.dao.CourseDao;
 import com.example.spring.jdbc.app.dao.repository.CourseRepository;
 import com.example.spring.jdbc.app.model.Course;
+import com.example.spring.jdbc.app.model.Student;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
